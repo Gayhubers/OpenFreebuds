@@ -24,13 +24,13 @@ registered:
 
 * FreeBuds 3i — `ZA02`
 
-* FreeBuds 4 — `ZA09`
-
-* FreeBuds Lipstick — `ZAA0`
+* FreeBuds 4 / Lipstick (Gen 1) — `ZA09` / `ZAA0` (same platform; one future driver, Lipstick as alias)
 
 * FreeLace Vitality Edition — `ZAA2`
 
-* FreeBuds 4E — `ZAA4`
+* FreeBuds 4E — `ZAA4` / `000135` (`T0004L`; standard ANC version)
+
+* FreeBuds 4E 无降噪版 — `ZAAN` / `000159` (`T0008`)
 
 * FreeBuds SE 3 — `ZAAO`
 
@@ -41,10 +41,35 @@ registered:
 * HUAWEI Eyewear — `ZCA0`, `ZCA1`
 
 FreeBuds Lipstick 2 (`ZAAJ`) is supported as a FreeBuds 5 variant and is
-registered as an alias of `Huawei5`. Its official config differs only in
-shell/color assets and the legacy `isSupportEqCustom` display flag. Huawei's
+registered as an alias of `Huawei5`. Both are `deviceModel=T0013`; the SKU ids
+`ZAAB` / `ZAAJ` do not expose that link. Its official config differs in box
+icon, default sub-product, gesture-guide resource, audio-setting order and two
+display flags (`isShowTitle`, `isSupportEqCustom`), with no new gesture command
+payload. Huawei's
 [official setup guide](https://consumer.huawei.com/cn/support/content/zh-cn00759656/)
 places it in the same gesture categories as FreeBuds 5.
+
+FreeBuds 4 (`ZA09`, model `000129`, `Hero`) and FreeBuds Lipstick Gen 1
+(`ZAA0`, model `00012A`, `Cooper`) are `deviceModel=T0004L` / `T0004K`, the same
+`T0004` family. Their `touchsetting` pages are identical except
+`imageBean.imageProductId`; config differences are shell/color, default
+sub-product, fast-operation entry and self-service/close-cover flags. Add one
+`Huawei4` driver and register Lipstick as an alias, not a second driver. Neither
+model is registered yet.
+
+FreeClip 2 (`ZAAS`, model `000167`) and FreeClip 2 S / Collector Edition
+(`ZAB2`, model `000173`) are `deviceModel=T0027` / `T0027K`, the same `T0027`
+family. `ZAAS` / `000167` alone is one SKU and cannot express the pair.
+
+Use `deviceModel` to find the family, then compare touch payload before sharing
+a driver. FreeBuds 4E has two SKUs: standard `ZAA4` / `000135` / `T0004L`, and
+no-ANC `ZAAN` / `000159` / `T0008`. Both 4E variants have four touch pages
+(double/triple/long/slide; the slide page has no `sendData`) and therefore do not
+merge with FreeBuds 4's three-page layout. `T0008` is listed in
+`files/00000A/00/device_whitelist_config.json` (version 41), with
+`assets/000159.json`, `assets/guidance/guidance_ZAAN.json` and
+`touchsetting/config_zaan.json`; the APK asset whitelist (version 35) only has
+the standard `ZAA4` entry.
 
 ## Missing feature handlers / backends
 
