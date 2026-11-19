@@ -130,20 +130,20 @@ the standard `ZAA4` entry.
 
   there is no handler to turn automatic wear detection on or off.
 
-* **Earphone cleaning events**: the same `0x2B7F` event domain also carries
-  cleaning reminders. The APK's `general_prompt_config.json` declares
-  `serviceId 43`, `commandId 127`, TLV type `2`, value `1` for
-  `01/05/09_earphone_cleaning`, with `type 6 value 20` as cancel and
-  `type 6 value 21` as “not seated correctly”. The resulting application data
-  is `2b7f020101`, `2b7f060114` and `2b7f060115`. Only FreeClip / FreeClip 2 /
-  FreeClip 2 典藏版 have entries. This is separate from the App's 30-day
+* **Earphone cleaning events**: implemented as a read-only `0x2B7F` handler
+  (`OfbHuaweiPromptEventsHandler`) and forwarded to system notifications.
+  The APK's `general_prompt_config.json` declares `serviceId 43`,
+  `commandId 127`, TLV type `2`, value `1` for `01/05/09_earphone_cleaning`,
+  with `type 6 value 20` as cancel and `type 6 value 21` as “not seated
+  correctly”. The resulting application data is `2b7f020101`,
+  `2b7f060114` and `2b7f060115`. Only FreeClip / FreeClip 2 / FreeClip 2 典藏版
+  have cleaning entries. This is separate from the App's 30-day
   `HeadphonesCleaningCard`, which is a periodic banner. No `2b7f02` has been
-  captured on OpenFreebuds' SPP channel yet. The earlier drop capture used a
-  different FreeClip 2 on the phone and on Windows, so it does not prove these
-  `0x2B7F` events are IConnect-only; verify SPP on the same earbud before
-  deciding whether an IConnect transport is needed. Do not treat the observed
-  `2b7f06020200` status packet as a cleaning event. See
-  `docs/清洁提醒-协议标定.md`.
+  captured on OpenFreebuds' SPP channel yet; the handler deliberately assumes
+  the captured IConnect TLV can arrive over SPP, and no IConnect transport is
+  implemented. Verify SPP on the same earbud before changing that assumption.
+  Do not treat the observed `2b7f06020200` status packet as a cleaning event.
+  See `docs/清洁提醒-协议标定.md`.
 
 * **Earbud care and health fields** (`isSupportHeadphoneCleaning`,
 
@@ -171,17 +171,18 @@ the standard `ZAA4` entry.
 
   no fit-test workflow. Present on FreeBuds 5i/6i/Pro 2/Pro 3/Pro 4/Pro 5.
 
-* **Drop detection events**: `config_drop_reminder` only writes the switch.
-  The actual event is `0x2B7F`: on 2026-11-19 phone-side IConnect received
-  `2b7f05` when a FreeClip 2 was dropped and `2b7f06` about 2.5 s later, then
-  Huawei posted notification id 127. That phone capture used
+* **Drop detection events**: `config_drop_reminder` writes the switch, and
+  `OfbHuaweiPromptEventsHandler` now consumes `2b7f050101` as an event and
+  shows a high-priority system notification. On 2026-11-19 phone-side IConnect
+  received `2b7f05` when a FreeClip 2 was dropped and `2b7f06` about 2.5 s
+  later, then Huawei posted notification id 127. That phone capture used
   `C0:E5:79:94:6D:CC`; OpenFreebuds was connected to another FreeClip 2,
   `C0:E5:79:45:6C:95`, so its SPP log without `2b7f05` is not a valid
-  cross-check. SPP delivery is still unverified; capture both links on the same
-  earbud before deciding whether an IConnect transport is required. Visible
-  models are FreeBuds 7, FreeBuds 6, FreeClip 2, FreeClip 2 S and FreeClip;
-  FreeBuds Neo is mounted because its config declares `drop_detection`, and
-  runtime support depends on the device response.
+  cross-check. The handler assumes SPP delivery of the same TLV; SPP delivery
+  and real system popups are still unverified. Visible models are FreeBuds 7,
+  FreeBuds 6, FreeClip 2, FreeClip 2 S and FreeClip; FreeBuds Neo is mounted
+  because its config declares `drop_detection`, and runtime support depends on
+  the device response.
 
 * **FreeBuds 3 ANC**: the official config has `active_noise_cancel`, but the
 
