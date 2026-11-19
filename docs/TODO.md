@@ -104,15 +104,6 @@ the standard `ZAA4` entry.
 
   command settings. Present on FreeBuds 6/6i/7/7i/Pro 4/Pro 5/Neo/Clip 2/SE 4.
 
-* **Smart charging** (`smart_charge`): no handler or UI yet, but the protocol is
-  earbud-side. The official `FeatureMbbState.SMART_CAP_CHARGING` uses MBB feature
-  id 4: query `0x2BB4` with `01 01 04 02 00 00`, write with
-  `01 01 04 02 <0/1> 00`. `SmartChargeConfig` only carries an analytics field;
-  no Huawei host API is called, so exposing the switch does not require
-  HarmonyOS NEXT. Present on FreeBuds
-
-  6/7/7i/Pro 5/Clip 2.
-
 * **Smart record** (`smart_record`): no handler. Present on FreeBuds 7/Pro 5.
 
 * **Hearing test / hearing aid** (`hearing_test`, `hearing_aid`): no handler.
@@ -138,6 +129,21 @@ the standard `ZAA4` entry.
 * **Wear detection switch** (`wear_detection`): only in-ear state reporting exists;
 
   there is no handler to turn automatic wear detection on or off.
+
+* **Earphone cleaning events**: the same `0x2B7F` event domain also carries
+  cleaning reminders. The APK's `general_prompt_config.json` declares
+  `serviceId 43`, `commandId 127`, TLV type `2`, value `1` for
+  `01/05/09_earphone_cleaning`, with `type 6 value 20` as cancel and
+  `type 6 value 21` as “not seated correctly”. The resulting application data
+  is `2b7f020101`, `2b7f060114` and `2b7f060115`. Only FreeClip / FreeClip 2 /
+  FreeClip 2 典藏版 have entries. This is separate from the App's 30-day
+  `HeadphonesCleaningCard`, which is a periodic banner. No `2b7f02` has been
+  captured on OpenFreebuds' SPP channel yet. The earlier drop capture used a
+  different FreeClip 2 on the phone and on Windows, so it does not prove these
+  `0x2B7F` events are IConnect-only; verify SPP on the same earbud before
+  deciding whether an IConnect transport is needed. Do not treat the observed
+  `2b7f06020200` status packet as a cleaning event. See
+  `docs/清洁提醒-协议标定.md`.
 
 * **Earbud care and health fields** (`isSupportHeadphoneCleaning`,
 
@@ -165,16 +171,17 @@ the standard `ZAA4` entry.
 
   no fit-test workflow. Present on FreeBuds 5i/6i/Pro 2/Pro 3/Pro 4/Pro 5.
 
-* **Drop detection events**: the current `config_drop_reminder` handler only
-
-  writes the switch. The actual event is `0x2B7F` on Huawei's IConnect channel,
-  not the SPP channel used by OpenFreebuds. On 2026-11-19 a FreeClip 2 sent
-  `2b7f05` when dropped and `2b7f06` about 2.5 s later; the Huawei phone then
-  posted notification id 127. A simultaneous OpenFreebuds SPP log showed no
-  `2b7f05`. Adding a drop notification therefore needs an IConnect transport,
-  not just a new SPP package handler. Visible models are FreeBuds 7,
-
-  FreeBuds 6, FreeClip 2, FreeClip 2 S and FreeClip; FreeBuds Neo is excluded.
+* **Drop detection events**: `config_drop_reminder` only writes the switch.
+  The actual event is `0x2B7F`: on 2026-11-19 phone-side IConnect received
+  `2b7f05` when a FreeClip 2 was dropped and `2b7f06` about 2.5 s later, then
+  Huawei posted notification id 127. That phone capture used
+  `C0:E5:79:94:6D:CC`; OpenFreebuds was connected to another FreeClip 2,
+  `C0:E5:79:45:6C:95`, so its SPP log without `2b7f05` is not a valid
+  cross-check. SPP delivery is still unverified; capture both links on the same
+  earbud before deciding whether an IConnect transport is required. Visible
+  models are FreeBuds 7, FreeBuds 6, FreeClip 2, FreeClip 2 S and FreeClip;
+  FreeBuds Neo is mounted because its config declares `drop_detection`, and
+  runtime support depends on the device response.
 
 * **FreeBuds 3 ANC**: the official config has `active_noise_cancel`, but the
 
@@ -393,6 +400,18 @@ Reference: [Huawei official setup guide, tables 1-3](https://consumer.huawei.com
   hardware smoke tests for at least one model from each family (5/5i/6/6i/7/7i/
 
   Neo/SE 4/Pro 2/Pro 3/Pro 4/Pro 5/Clip/Clip 2).
+
+* Left-right auto-switch (`0x2B9A`) is mounted on FreeClip 1/2/2 S and W Buds
+
+  1/2, but no device read/write has succeeded. FreeClip 2 currently hits SPP
+
+  `10048`; retry on a free port and confirm `param 1` length/state.
+
+* W Buds 1/2 (`000137` / `00016F`) has only a minimal driver. Smoke-test info
+
+  and battery, then confirm whether its firmware answers `0x2B9A`; add no other
+
+  settings until a profile or device evidence exists.
 
 * Keep the capability matrix updated when a handler is added or a product ID is
 
