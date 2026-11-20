@@ -402,11 +402,10 @@ Reference: [Huawei official setup guide, tables 1-3](https://consumer.huawei.com
 
   Neo/SE 4/Pro 2/Pro 3/Pro 4/Pro 5/Clip/Clip 2).
 
-* Left-right auto-switch (`0x2B9A`) is mounted on FreeClip 1/2/2 S and W Buds
-
-  1/2, but no device read/write has succeeded. FreeClip 2 currently hits SPP
-
-  `10048`; retry on a free port and confirm `param 1` length/state.
+* Left-right auto-switch (read `0x2B9A`, write `0x2B99`) is mounted on FreeClip
+  1/2/2 S and W Buds 1/2. FreeClip 2 read/write is verified, including a
+  fresh-connection readback in both directions. FreeClip 1/2 S and W Buds still
+  need hardware smoke tests; W Buds must be response-gated.
 
 * W Buds 1/2 (`000137` / `00016F`) has only a minimal driver. Smoke-test info
 
