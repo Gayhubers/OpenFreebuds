@@ -120,11 +120,17 @@ the standard `ZAA4` entry.
 
   and continuous-conversation modes, not the full agent backend.
 
-* **Smart scenario / big volume** (`smart_scenario`, `big_volume_new`): no
+* **Smart scenario** (`smart_scenario`): no handler. Present on Neo.
 
-  handler. `smart_scenario` is present on Neo; `big_volume_new` is present on
+* **Noisy-environment media volume** (`big_volume_new`): handler implemented
 
-  Clip 2.
+  for FreeClip 1, FreeClip 2 and FreeClip 2 S (`0x2B88` probe / `0x2B87` write,
+
+  legacy `0x2B80` / `0x2B7F` fallback). Real-device write acknowledgement and
+
+  read-back still need verification; FreeArc and Eyewear 1/2 declare the feature
+
+  but have no OpenFreebuds driver yet.
 
 * **Wear detection switch** (`wear_detection`): only in-ear state reporting exists;
 
